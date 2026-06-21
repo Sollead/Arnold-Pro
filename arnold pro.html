@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arnold Pro System</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A84C;--gold-dim:#8a6e2f;--gold-light:#f0d06a;--bg:#3a3a3a;--surface:#454545;--surface2:#4e4e4e;--border:#5a5a5a;--border2:#686868;--text:#f0f0f0;--muted:#aaa;--green:#27ae60;--red:#c0392b;--orange:#e67e22;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-weight:400;min-height:100vh;overflow-x:hidden;}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:50px;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.1em;color:var(--gold);}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab{background:none;border:none;color:var(--muted);font-family:'Barlow',sans-serif;font-size:0.68rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:7px 9px;cursor:pointer;border-radius:4px;transition:all 0.2s;}
+.nav-tab.active{color:var(--gold);background:#1a1500;}
+.page{display:none;padding-top:50px;min-height:100vh;}
+.page.active{display:block;}
+.dash-hero{padding:24px 16px 18px;background:linear-gradient(180deg,#111 0%,var(--bg) 100%);border-bottom:1px solid var(--border);}
+.dash-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,8vw,3.8rem);letter-spacing:0.04em;color:var(--gold);line-height:1;}
+.dash-hero p{color:var(--muted);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;}
+.mode-switch{display:flex;gap:6px;padding:14px 14px 0;}
+.mode-btn{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.08em;padding:10px 4px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.mode-btn.active{background:#1a1500;border-color:var(--gold);color:var(--gold);}
+.mode-btn .sub{display:block;font-family:'Barlow',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:none;color:var(--muted);margin-top:1px;font-weight:400;}
+.mode-btn.active .sub{color:var(--gold-dim);}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.stat-card.wide{grid-column:1/-1;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);line-height:1;}
+.stat-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;}
+.week-dots{display:flex;gap:6px;margin-top:8px;}
+.week-dot{flex:1;height:5px;border-radius:3px;background:var(--border2);}
+.week-dot.done{background:var(--gold);}
+.week-dot.today{background:var(--gold-light);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.12em;color:var(--gold);padding:14px 16px 6px;border-top:1px solid var(--border);}
+.next-workout{margin:0 16px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:14px;}
+.next-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:3px;}
+.next-day{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--gold);line-height:1;}
+.next-focus{font-size:0.8rem;color:var(--text);margin-top:2px;}
+.btn-start{display:block;width:100%;margin-top:10px;background:var(--gold);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.12em;border:none;border-radius:8px;padding:11px;cursor:pointer;transition:all 0.2s;}
+.btn-start:hover{background:var(--gold-light);}
+.nutrition-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px;}
+.nut-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px;}
+.nut-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:5px;}
+.nut-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold-light);line-height:1;}
+.nut-unit{font-size:0.68rem;color:var(--muted);}
+.nut-note{font-size:0.68rem;color:var(--muted);margin-top:4px;line-height:1.4;}
+.deload-banner{background:#0f0a00;border:1px solid #3a2a00;border-left:3px solid var(--orange);border-radius:10px;padding:12px 14px;margin:0 16px 8px;display:none;}
+.deload-title{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;color:var(--orange);letter-spacing:0.08em;}
+.deload-text{font-size:0.76rem;color:#aaa;margin-top:3px;line-height:1.5;}
+.day-selector{display:flex;gap:6px;padding:14px;overflow-x:auto;scrollbar-width:none;}
+.day-selector::-webkit-scrollbar{display:none;}
+.day-btn{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.day-btn.active{border-color:var(--gold);background:#1a1500;}
+.day-btn.completed{border-color:var(--green);background:#001a0a;}
+.day-btn .dname{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--gold);}
+.day-btn.completed .dname{color:var(--green);}
+.day-btn .dfocus{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:1px;}
+.mode-banner{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 13px;margin:0 14px 12px;font-size:0.72rem;color:var(--muted);}
+.mode-banner strong{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.08em;}
+.workout-area{padding:0 14px 100px;}
+.warmup-block{background:#0a0f0a;border:1px solid #1a2a1a;border-left:3px solid var(--green);border-radius:10px;padding:12px 14px;margin-bottom:14px;}
+.warmup-title{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:var(--green);margin-bottom:7px;}
+.warmup-item{font-size:0.76rem;color:#aaa;padding:2px 0;display:flex;gap:8px;}
+.warmup-item::before{content:"→";color:var(--green);flex-shrink:0;}
+.ex-section{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.12em;color:var(--gold-light);border-bottom:1px solid var(--border);padding-bottom:5px;margin:14px 0 8px;}
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.ex-header{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:11px 13px 8px;}
+.ex-name{font-size:0.86rem;font-weight:600;line-height:1.3;}
+.ex-alt{font-size:0.68rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+.ex-badge{font-size:0.58rem;background:#001a0a;border:1px solid var(--green);color:var(--green);border-radius:4px;padding:2px 5px;white-space:nowrap;margin-top:2px;display:inline-block;}
+.ex-badge.gym{background:#001520;border-color:#2980b9;color:#5dade2;}
+.ex-badge.bw{background:#1a0a1a;border-color:#9b59b6;color:#bb8fce;}
+.video-btn{display:flex;align-items:center;gap:7px;margin:0 13px 10px;background:#0d0d0d;border:1px solid var(--border2);border-radius:8px;padding:9px 12px;cursor:pointer;transition:all 0.2s;width:calc(100% - 26px);}
+.video-btn:hover{border-color:var(--gold-dim);background:#111;}
+.video-btn svg{flex-shrink:0;color:#ff4444;}
+.video-btn-label{font-size:0.72rem;color:var(--muted);}
+.video-btn-label strong{color:var(--text);display:block;font-size:0.76rem;margin-bottom:1px;}
+.sets-area{padding:0 13px 11px;}
+.sets-header{display:grid;grid-template-columns:28px 1fr 1fr 76px;gap:5px;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:5px;}
+.set-row{display:grid;grid-template-columns:28px 1fr 1fr 76px;gap:5px;align-items:center;margin-bottom:5px;}
+.set-num{font-family:'Bebas Neue',sans-serif;font-size:0.9rem;color:var(--gold);text-align:center;}
+.set-input{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'Barlow',sans-serif;font-size:0.8rem;padding:6px 7px;width:100%;text-align:center;transition:border-color 0.2s;}
+.set-input:focus{outline:none;border-color:var(--gold);}
+.set-done-btn{background:var(--border2);border:none;border-radius:6px;color:var(--muted);font-size:0.68rem;padding:6px 4px;cursor:pointer;transition:all 0.2s;width:100%;}
+.set-done-btn.done{background:var(--green);color:#fff;}
+.rpe-row{display:flex;align-items:center;gap:6px;padding:0 13px 10px;flex-wrap:wrap;}
+.rpe-label{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;}
+.rpe-dots{display:flex;gap:3px;}
+.rpe-dot{width:22px;height:22px;border-radius:50%;border:1px solid var(--border2);background:var(--border2);cursor:pointer;transition:all 0.15s;font-size:0.58rem;color:var(--muted);display:flex;align-items:center;justify-content:center;}
+.rpe-dot.active{color:#fff;font-weight:600;}
+.rpe-dot[data-rpe="1"].active,.rpe-dot[data-rpe="2"].active,.rpe-dot[data-rpe="3"].active{background:#27ae60;border-color:#27ae60;}
+.rpe-dot[data-rpe="4"].active,.rpe-dot[data-rpe="5"].active,.rpe-dot[data-rpe="6"].active{background:#f39c12;border-color:#f39c12;}
+.rpe-dot[data-rpe="7"].active,.rpe-dot[data-rpe="8"].active{background:#e67e22;border-color:#e67e22;}
+.rpe-dot[data-rpe="9"].active,.rpe-dot[data-rpe="10"].active{background:#c0392b;border-color:#c0392b;}
+.rpe-feedback{font-size:0.68rem;color:var(--muted);font-style:italic;width:100%;margin-top:2px;}
+.prog-hint{background:#0a0a00;border:1px solid #2a2500;border-radius:6px;padding:7px 10px;margin:0 13px 11px;font-size:0.7rem;color:#aaa;line-height:1.5;}
+.prog-hint strong{color:var(--gold);}
+.complete-day-btn{display:block;width:100%;margin:14px 0;background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.12em;border:none;border-radius:10px;padding:15px;cursor:pointer;}
+.complete-day-btn:disabled{background:var(--green);color:#fff;cursor:default;}
+.progress-section{padding:14px 14px 80px;}
+.prog-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:18px;}
+.prog-week-cell{aspect-ratio:1;border-radius:4px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:0.52rem;color:var(--muted);}
+.prog-week-cell.done{background:var(--gold-dim);}
+.prog-week-cell.today{background:var(--gold);color:#000;font-weight:600;}
+.pr-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
+.pr-ex{font-size:0.8rem;font-weight:500;}
+.pr-val{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);}
+.vol-bar-row{display:grid;grid-template-columns:80px 1fr auto;gap:8px;align-items:center;font-size:0.73rem;margin-bottom:7px;}
+.vol-bar-track{background:var(--border);border-radius:3px;height:5px;overflow:hidden;}
+.vol-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width 0.5s;}
+.vol-num{color:var(--gold);font-weight:500;white-space:nowrap;}
+.nut-page{padding:14px 14px 80px;}
+.nut-day-toggle{display:flex;gap:8px;margin-bottom:14px;}
+.nut-toggle-btn{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:0.76rem;font-weight:500;padding:10px;cursor:pointer;transition:all 0.2s;}
+.nut-toggle-btn.active{background:#1a1500;border-color:var(--gold);color:var(--gold);}
+.macro-ring-wrap{text-align:center;padding:14px 0;}
+.macro-ring-wrap svg{max-width:160px;}
+.macro-labels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.macro-label{text-align:center;}
+.macro-label .val{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;line-height:1;}
+.macro-label .name{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:2px;}
+.macro-label.protein .val{color:#e74c3c;}
+.macro-label.carbs .val{color:#f39c12;}
+.macro-label.fat .val{color:#3498db;}
+.meal-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;}
+.meal-time{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:3px;}
+.meal-name{font-size:0.86rem;font-weight:500;margin-bottom:2px;}
+.meal-macros{font-size:0.7rem;color:var(--muted);}
+.timing-block{background:#0a000a;border:1px solid #2a002a;border-left:3px solid #9b59b6;border-radius:10px;padding:12px 13px;margin-top:12px;}
+.timing-title{font-family:'Bebas Neue',sans-serif;font-size:0.86rem;letter-spacing:0.1em;color:#9b59b6;margin-bottom:7px;}
+.timing-row{display:flex;justify-content:space-between;font-size:0.76rem;padding:4px 0;border-bottom:1px solid #1a001a;}
+.timing-row:last-child{border:none;}
+.timing-when{color:var(--muted);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,8,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;z-index:100;}
+.bnav-btn{flex:1;background:none;border:none;color:var(--muted);padding:9px 4px 13px;cursor:pointer;transition:color 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bnav-btn.active{color:var(--gold);}
+.bnav-btn svg{width:19px;height:19px;}
+.bnav-btn span{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;}
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#000;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.1em;padding:9px 18px;border-radius:8px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.deload-badge{display:inline-block;background:#1a0800;border:1px solid var(--orange);color:var(--orange);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:4px;padding:2px 7px;}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">Arnold Pro</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="goPage('dash')">Home</button>
+    <button class="nav-tab" onclick="goPage('workout')">Training</button>
+    <button class="nav-tab" onclick="goPage('nutrition')">Nutrition</button>
+    <button class="nav-tab" onclick="goPage('progress')">Verlauf</button>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dash">
+  <div class="dash-hero">
+    <h1 id="dash-greeting">Guten Morgen</h1>
+    <p id="dash-date">Montag · Woche 1</p>
+  </div>
+  <div class="mode-switch" id="plan-switch"></div>
+  <div class="mode-switch" id="mode-switch"></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="dash-streak">0</div><div class="stat-label">Tage Streak</div></div>
+    <div class="stat-card"><div class="stat-val" id="dash-week-done">0/6</div><div class="stat-label">Diese Woche</div></div>
+    <div class="stat-card wide"><div class="stat-label" style="margin-bottom:6px;">Wochenfortschritt</div><div class="week-dots" id="week-dots"></div></div>
+    <div class="stat-card"><div class="stat-val" id="dash-total-vol">0</div><div class="stat-label">Gesamt-Sets</div></div>
+    <div class="stat-card"><div class="stat-val" id="dash-week-num">1</div><div class="stat-label">Trainingswoche</div></div>
+  </div>
+  <div id="deload-banner-dash" class="deload-banner"><div class="deload-title">⚡ Deload Woche</div><div class="deload-text">Alle Gewichte auf 60% reduzieren (Gym/Home). Bodyweight: leichtere Variante / weniger Sätze. Dein Körper dankt es dir.</div></div>
+  <div class="section-title">Nächstes Training</div>
+  <div class="next-workout">
+    <div class="next-label">Heute</div>
+    <div class="next-day" id="next-day-name">Montag</div>
+    <div class="next-focus" id="next-day-focus">Chest + Back · Heavy Focus</div>
+    <button class="btn-start" onclick="startToday()">Training starten →</button>
+  </div>
+  <div class="section-title">Nutrition heute</div>
+  <div class="nutrition-cards">
+    <div class="nut-card"><div class="nut-title">Kalorien</div><div class="nut-val" id="dash-kcal">2900</div><div class="nut-unit">kcal</div><div class="nut-note" id="dash-kcal-note">Trainingstag</div></div>
+    <div class="nut-card"><div class="nut-title">Protein</div><div class="nut-val">170</div><div class="nut-unit">g</div><div class="nut-note">~2g / kg</div></div>
+    <div class="nut-card"><div class="nut-title">Kohlenhydrate</div><div class="nut-val" id="dash-carbs">340</div><div class="nut-unit">g</div><div class="nut-note" id="dash-carbs-note">Energie für Training</div></div>
+    <div class="nut-card"><div class="nut-title">Fette</div><div class="nut-val" id="dash-fat">75</div><div class="nut-unit">g</div><div class="nut-note">Gesunde Fette</div></div>
+  </div>
+</div>
+
+<!-- WORKOUT -->
+<div class="page" id="page-workout">
+  <div class="day-selector" id="day-selector"></div>
+  <div class="mode-banner" id="mode-banner"></div>
+  <div class="workout-area" id="workout-area"></div>
+</div>
+
+<!-- NUTRITION -->
+<div class="page" id="page-nutrition">
+  <div class="nut-page">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:3px;">Nutrition Plan</div>
+    <div style="font-size:0.72rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;">85 kg · Intermediate · Muskelaufbau</div>
+    <div class="nut-day-toggle">
+      <button class="nut-toggle-btn active" onclick="setNutDay('training',this)">Trainingstag</button>
+      <button class="nut-toggle-btn" onclick="setNutDay('rest',this)">Ruhetag</button>
+    </div>
+    <div class="macro-ring-wrap">
+      <svg viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="70" fill="none" stroke="#1e1e1e" stroke-width="16"/>
+        <circle cx="90" cy="90" r="70" fill="none" stroke="#e74c3c" stroke-width="16" stroke-dasharray="175 265" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 90 90)"/>
+        <circle cx="90" cy="90" r="70" fill="none" stroke="#f39c12" stroke-width="16" stroke-dasharray="220 220" stroke-dashoffset="-175" stroke-linecap="round" transform="rotate(-90 90 90)"/>
+        <circle cx="90" cy="90" r="70" fill="none" stroke="#3498db" stroke-width="16" stroke-dasharray="45 395" stroke-dashoffset="-395" stroke-linecap="round" transform="rotate(-90 90 90)"/>
+        <text x="90" y="85" text-anchor="middle" font-family="Bebas Neue" font-size="26" fill="#C9A84C" id="ring-kcal">2900</text>
+        <text x="90" y="103" text-anchor="middle" font-family="Barlow" font-size="10" fill="#666">kcal</text>
+      </svg>
+      <div class="macro-labels">
+        <div class="macro-label protein"><div class="val" id="n-protein">170g</div><div class="name">Protein</div></div>
+        <div class="macro-label carbs"><div class="val" id="n-carbs">340g</div><div class="name">Carbs</div></div>
+        <div class="macro-label fat"><div class="val" id="n-fat">75g</div><div class="name">Fett</div></div>
+      </div>
+    </div>
+    <div id="meal-plan"></div>
+    <div class="timing-block">
+      <div class="timing-title">⏱ Supplement Timing</div>
+      <div class="timing-row"><div class="timing-when">30 Min vor Training</div><div>Kreatin 5g + Kaffee</div></div>
+      <div class="timing-row"><div class="timing-when">Direkt nach Training</div><div>Protein Shake 30–40g</div></div>
+      <div class="timing-row"><div class="timing-when">Vor dem Schlafen</div><div>Casein 20–30g (optional)</div></div>
+      <div class="timing-row"><div class="timing-when">Täglich</div><div>Omega-3 · Vitamin D3+K2</div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-top:10px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.86rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:6px;">Hydration</div>
+      <div style="font-size:0.78rem;color:#aaa;line-height:1.7;">Trainingstag: <strong style="color:var(--text);">3.5–4L</strong><br>Ruhetag: <strong style="color:var(--text);">2.5–3L</strong><br>Nach Training: Elektrolyte (Salz + Magnesium)</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="page" id="page-progress">
+  <div class="progress-section">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:14px;">Fortschritt</div>
+    <div class="section-title" style="padding-left:0;">Letzte 28 Tage</div>
+    <div class="prog-week-grid" id="prog-calendar"></div>
+    <div class="section-title" style="padding-left:0;margin-top:6px;">Volumen pro Muskelgruppe</div>
+    <div id="vol-bars"></div>
+    <div class="section-title" style="padding-left:0;margin-top:12px;">Persönliche Rekorde</div>
+    <div id="pr-list"><div style="font-size:0.78rem;color:var(--muted);text-align:center;padding:18px;">Noch keine PRs — starte dein erstes Training.</div></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="bnav-btn active" onclick="goPage('dash')" id="bnav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Home</span></button>
+  <button class="bnav-btn" onclick="goPage('workout')" id="bnav-workout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M6 12h12M2 7h4M18 7h4M2 17h4M18 17h4"/></svg><span>Training</span></button>
+  <button class="bnav-btn" onclick="goPage('nutrition')" id="bnav-nutrition"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Nutrition</span></button>
+  <button class="bnav-btn" onclick="goPage('progress')" id="bnav-progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Verlauf</span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+// ────────────────────────────────────────────────────────────────────────
+// DAY DATA — drei Modi pro Tag: gym, home, bw (bodyweight)
+// ────────────────────────────────────────────────────────────────────────
+const ARNOLD_DAYS = [
+{key:'mon',name:'Montag',short:'MO',focus:'Chest + Back',sub:'Heavy Focus',
+ warmup:{
+  gym:['5 Min Cardio (Rad/Rudergerät)','Schulter-Rotationen mit leichtem Band','2 Aufwärmsätze Bankdrücken (leer/leicht)','Lat-Aktivierung: 10x Band Pull-Aparts'],
+  home:['5 Min Armkreisen & Schulterrotation','10x Liegestütz mit Pause oben','10x Bodyweight Rudern (Tischkante)','15x Band Pull-Aparts (Gummiband)'],
+  bw:['5 Min Seilspringen / Hampelmann','10x Liegestütz langsam','10x Scapula Pull-ups an Stange','Schulter-Mobility 1 Min'],
+ },
+ sections:{
+  gym:[
+   {label:'Brust',exercises:[
+     {name:'Langhantel Bankdrücken',alt:'Griff schulterbreit+ · Schulterblätter zusammen',sets:4,reps:'6–8',kg:60,home:false},
+     {name:'Incline Bankdrücken Maschine',alt:'Obere Brust · kontrolliert',sets:3,reps:'10–12',kg:40,home:false},
+     {name:'Kabelzug Fly (hoch)',alt:'Leichte Neigung nach vorne · Stretch unten',sets:3,reps:'12–15',kg:15,home:false},
+   ]},
+   {label:'Rücken',exercises:[
+     {name:'Latzug breit',alt:'Brust raus · zu oberer Brust ziehen',sets:4,reps:'8–10',kg:55,home:false},
+     {name:'Rudern Kabel sitzend',alt:'Rücken gerade · Ellbogen am Körper',sets:4,reps:'10–12',kg:50,home:false},
+     {name:'T-Bar Rudern',alt:'Brust auf Pad · volle Kontraktion',sets:3,reps:'10–12',kg:40,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Brust',exercises:[
+     {name:'KH Flachbank-Press',alt:'Boden als Bank · Ellbogen nah',sets:4,reps:'8–10',kg:20,home:false},
+     {name:'Liegestütz (Füße erhöht)',alt:'Stuhl unter Füße = obere Brust',sets:4,reps:'10–15',kg:0,home:true},
+     {name:'KH Fly liegend',alt:'Volle Kontraktion oben · 3 Sek runter',sets:3,reps:'12–15',kg:12,home:false},
+   ]},
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge',alt:'Breiter Griff · Lats fokussieren',sets:4,reps:'max',kg:0,home:true},
+     {name:'KH Rudern einarmig',alt:'Flacher Rücken · Schulterblatt runter',sets:4,reps:'10–12',kg:22,home:false},
+     {name:'KH Pullover',alt:'Quer über Bank/Stuhl · tiefer Stretch',sets:3,reps:'12',kg:16,home:false},
+   ]},
+  ],
+  bw:[
+   {label:'Brust',exercises:[
+     {name:'Pseudo Planche Liegestütz',alt:'Hände weit unten am Bauch · vorgebeugt',sets:4,reps:'8–12',kg:0,home:true},
+     {name:'Diamond Liegestütz',alt:'Hände Diamant-Form · enge Brust+Trizeps',sets:3,reps:'10–15',kg:0,home:true},
+     {name:'Archer Push-up',alt:'Ein Arm gestreckt seitlich · einseitige Last',sets:3,reps:'8/Seite',kg:0,home:true},
+   ]},
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge breit (BW)',alt:'Volle Streckung unten · Brust zur Stange',sets:4,reps:'max',kg:0,home:true},
+     {name:'Australian Rows (Stange tief)',alt:'Körper unter Stange · Rumpf gerade',sets:4,reps:'12–15',kg:0,home:true},
+     {name:'Negative Pull-ups',alt:'Langsam 4–5 Sek runter, falls Klimmzug schwer',sets:3,reps:'5–6',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'tue',name:'Dienstag',short:'DI',focus:'Schultern + Arme',sub:'Kontrolle & Superset',
+ warmup:{
+  gym:['5 Min Cardio','Armkreisen alle Richtungen','2 Aufwärmsätze Schulterpress leicht','Band-Außenrotation 15x je Seite'],
+  home:['5 Min Armkreisen alle Richtungen','10x leichtes Schulterpress','Nacken & Trapez dehnen 30 Sek','10x Bizeps-Curl aufwärmen'],
+  bw:['5 Min Armkreisen','10x Pike Push-up langsam','Handgelenk-Mobility 1 Min','Schulter-Dehnung an Wand 30 Sek'],
+ },
+ sections:{
+  gym:[
+   {label:'Schultern',exercises:[
+     {name:'Langhantel Schulterdrücken',alt:'Kern fest · Stange knapp vor Gesicht',sets:4,reps:'6–8',kg:35,home:false},
+     {name:'Seitheben Kabel',alt:'Konstante Spannung · kontrolliert',sets:4,reps:'12–15',kg:8,home:false},
+     {name:'Face Pulls',alt:'Ellbogen hoch · hinterer Deltoid + Rotatoren',sets:3,reps:'15',kg:15,home:false},
+   ]},
+   {label:'Arme Superset',exercises:[
+     {name:'Bizeps Curl Kabel',alt:'Konstante Spannung · kein Schwung',sets:4,reps:'10–12',kg:20,home:false},
+     {name:'Trizeps Pushdown',alt:'Ellbogen fixiert · volle Extension',sets:4,reps:'10–12',kg:25,home:false},
+     {name:'Hammer Curl KH',alt:'Neutral-Griff · Brachialis',sets:3,reps:'10–12',kg:14,home:false},
+     {name:'French Press',alt:'SZ-Stange · Ellbogen stabil',sets:3,reps:'12',kg:20,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Schultern',exercises:[
+     {name:'KH Schulterpress stehend',alt:'Kern anspannen · Ellbogen leicht vorne',sets:4,reps:'8–10',kg:16,home:false},
+     {name:'Seitheben',alt:'Daumen leicht runter · kontrolliert',sets:4,reps:'12–15',kg:10,home:false},
+     {name:'Bent-over Rear Delt Fly',alt:'Vorgebeugt · hinterer Deltoid',sets:3,reps:'12–15',kg:8,home:false},
+   ]},
+   {label:'Arme Superset',exercises:[
+     {name:'KH Curl wechselseitig',alt:'Volle Streckung unten · kein Schwung',sets:4,reps:'10–12',kg:14,home:false},
+     {name:'Trizeps Kickback einarmig',alt:'Ellbogen fixiert · Stuhl als Stütze',sets:4,reps:'10–12',kg:10,home:true},
+     {name:'Hammer Curl',alt:'Neutral-Griff · Brachialis',sets:3,reps:'10–12',kg:14,home:false},
+     {name:'Overhead Trizeps Extension',alt:'Eine KH beidhändig über Kopf',sets:3,reps:'12',kg:14,home:false},
+   ]},
+  ],
+  bw:[
+   {label:'Schultern',exercises:[
+     {name:'Pike Push-up',alt:'Hüfte hoch · Kopf Richtung Boden',sets:4,reps:'8–12',kg:0,home:true},
+     {name:'Decline Pike Push-up',alt:'Füße auf Stuhl/Bank erhöht · mehr Last',sets:3,reps:'6–10',kg:0,home:true},
+     {name:'Wall Handstand Hold',alt:'Füße an Wand · so lange wie möglich halten',sets:3,reps:'20–40 Sek',kg:0,home:true},
+   ]},
+   {label:'Arme Superset',exercises:[
+     {name:'Chin-ups eng (Bizeps)',alt:'Untergriff eng · Fokus Bizeps',sets:4,reps:'max',kg:0,home:true},
+     {name:'Dips zwischen Stühlen',alt:'Zwei Stühle · Trizeps tief dehnen',sets:4,reps:'10–15',kg:0,home:true},
+     {name:'Diamond Push-up Pulse',alt:'Kleine Pulse unten · Trizeps-Burnout',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'wed',name:'Mittwoch',short:'MI',focus:'Beine + Abs',sub:'Schwere Compounds',
+ warmup:{
+  gym:['5 Min Rad/Stepper','10x Bodyweight Squat tief','Hüft-Mobility 1 Min je Seite','2 Aufwärmsätze Kniebeuge mit Stange leer'],
+  home:['5 Min Seilspringen oder Hüpfen','10x Bodyweight Squat tief','10x Hüftkreisen je Seite','Walking Lunges 10 Schritte ohne Gewicht'],
+  bw:['5 Min lockeres Springen','10x Bodyweight Squat','Hüft-Mobility 1 Min je Seite','10x Step-ups langsam'],
+ },
+ sections:{
+  gym:[
+   {label:'Beine',exercises:[
+     {name:'Kniebeuge (Langhantel)',alt:'Hüfte tief · Knie Richtung Zehen',sets:4,reps:'6–8',kg:80,home:false},
+     {name:'Beinpresse',alt:'Volle Range · kontrolliert',sets:4,reps:'10–12',kg:120,home:false},
+     {name:'Rumänisches Kreuzheben',alt:'Hüfte zurück · Hamstrings dehnen',sets:4,reps:'10–12',kg:60,home:false},
+     {name:'Beinbeuger Maschine',alt:'Langsam negativ · volle Kontraktion',sets:3,reps:'10–12',kg:35,home:false},
+     {name:'Wadenheben Maschine',alt:'Volle Range · 1 Sek Halten oben',sets:4,reps:'15–20',kg:50,home:false},
+   ]},
+   {label:'Abs',exercises:[
+     {name:'Hanging Leg Raises',alt:'An Stange · Beine gerade halten',sets:3,reps:'15',kg:0,home:true},
+     {name:'Cable Crunch',alt:'Kniend am Kabelturm · Rumpf einrollen',sets:3,reps:'15',kg:25,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Beine',exercises:[
+     {name:'Goblet Squat',alt:'Eine KH vor Brust · tiefe Kniebeuge',sets:4,reps:'10–12',kg:24,home:true},
+     {name:'Rumänisches Kreuzheben',alt:'Hüfte zurück · Hamstrings dehnen',sets:4,reps:'10–12',kg:22,home:false},
+     {name:'Bulgarian Split Squat',alt:'Hinterer Fuß auf Stuhl · KH je Hand',sets:3,reps:'10/Bein',kg:14,home:true},
+     {name:'Walking Lunges',alt:'KH in Händen · langer Schritt',sets:3,reps:'12/Bein',kg:12,home:true},
+     {name:'Calf Raises einbeinig',alt:'Treppenstufe · KH in einer Hand',sets:4,reps:'20',kg:16,home:true},
+   ]},
+   {label:'Abs',exercises:[
+     {name:'Hanging Leg Raises',alt:'Türstange · Beine gerade halten',sets:3,reps:'15',kg:0,home:true},
+     {name:'Crunch mit KH',alt:'KH auf Brust · langsam kontrolliert',sets:3,reps:'15',kg:8,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Beine',exercises:[
+     {name:'Pistol Squat (assistiert)',alt:'An Türrahmen/Stuhl festhalten zur Balance',sets:4,reps:'6–8/Bein',kg:0,home:true},
+     {name:'Shrimp Squat',alt:'Hinteres Bein gehalten · sehr tief',sets:3,reps:'6–8/Bein',kg:0,home:true},
+     {name:'Single-Leg RDL (Bodyweight)',alt:'Hüfte scharnieren · Balance halten',sets:3,reps:'10–12/Bein',kg:0,home:true},
+     {name:'Step-ups (Stuhl/Bank)',alt:'Explosiv hoch · kontrolliert runter',sets:3,reps:'12/Bein',kg:0,home:true},
+     {name:'Jump Squats',alt:'Tief runter · explosiv hoch',sets:3,reps:'15',kg:0,home:true},
+   ]},
+   {label:'Abs',exercises:[
+     {name:'L-Sit Hold (an Stange)',alt:'Beine gestreckt halten · Bauchspannung',sets:3,reps:'15–20 Sek',kg:0,home:true},
+     {name:'Plank to Push-up',alt:'Zwischen Unterarm- und Liegestützposition',sets:3,reps:'12',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'thu',name:'Donnerstag',short:'DO',focus:'Chest + Back',sub:'Volume / Pump',
+ warmup:{
+  gym:['5 Min Cardio','Brustöffnung mit Band','2 Aufwärmsätze Schrägbank leicht','Lat-Aktivierung 10x Pulldown leicht'],
+  home:['5 Min Armkreisen & Brustöffnung','10x weite Liegestütz langsam','10x Schulterblätter zusammenziehen','Doorway Chest Stretch 30 Sek'],
+  bw:['5 Min Seilspringen','10x weite Liegestütz langsam','Scapula Pull-ups 10x','Doorway Chest Stretch 30 Sek'],
+ },
+ sections:{
+  gym:[
+   {label:'Brust',exercises:[
+     {name:'Schrägbankdrücken KH',alt:'30° Neigung · obere Brust',sets:4,reps:'8–10',kg:24,home:false},
+     {name:'Dips (Maschine/Assist)',alt:'Leicht vorgebeugt · untere Brust',sets:3,reps:'10–12',kg:20,home:false},
+     {name:'Pec Deck',alt:'Volle Kontraktion · langsam negativ',sets:3,reps:'12–15',kg:35,home:false},
+   ]},
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge breit',alt:'Volle Streckung · zur Brust ziehen',sets:4,reps:'8–10',kg:0,home:true},
+     {name:'Rudern Maschine',alt:'Brust am Pad · Rücken gestreckt',sets:4,reps:'10–12',kg:45,home:false},
+     {name:'Reverse Pec Deck',alt:'Hinterer Deltoid + oberer Rücken',sets:3,reps:'12–15',kg:25,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Brust',exercises:[
+     {name:'KH Schrägbank Press',alt:'Füße auf Stuhl · obere Brust',sets:4,reps:'10–12',kg:18,home:false},
+     {name:'Enger Liegestütz',alt:'Hände schulterbreit · Trizeps + innere Brust',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'KH Fly langsam',alt:'3 Sek runter · voller Stretch',sets:3,reps:'15',kg:10,home:false},
+   ]},
+   {label:'Rücken',exercises:[
+     {name:'KH Rudern beidhändig',alt:'Rumpf parallel zum Boden',sets:4,reps:'10–12',kg:20,home:false},
+     {name:'Chin-ups (Untergriff)',alt:'Mehr Bizeps + unterer Lat',sets:3,reps:'max',kg:0,home:true},
+     {name:'Superman Hold',alt:'Am Boden · 2 Sek halten oben',sets:3,reps:'15',kg:0,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Brust',exercises:[
+     {name:'Liegestütz (Füße erhöht)',alt:'Stuhl unter Füße · obere Brust',sets:4,reps:'12–15',kg:0,home:true},
+     {name:'Enger Liegestütz',alt:'Hände schulterbreit · Trizeps + innere Brust',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'Plank to Push-up',alt:'Langsame Kontrolle · Brust-Stabilität',sets:3,reps:'12',kg:0,home:true},
+   ]},
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge breit (BW)',alt:'Volle Range · zur Brust ziehen',sets:4,reps:'max',kg:0,home:true},
+     {name:'Australian Rows (Stange tief)',alt:'Körper unter Stange · Rumpf gerade',sets:4,reps:'12–15',kg:0,home:true},
+     {name:'Superman Hold',alt:'Am Boden · 2 Sek halten oben',sets:3,reps:'15',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'fri',name:'Freitag',short:'FR',focus:'Schultern + Arme',sub:'Pump Day',
+ warmup:{
+  gym:['5 Min leichtes Cardio','2 Aufwärmsätze Schulterpress leicht','Nacken dehnen 30 Sek je Seite','Handgelenk-Mobility'],
+  home:['5 Min leichtes Kardio','10x Arnold Press Aufwärmen','Nacken dehnen 30 Sek je Seite','10x Wrist Circles'],
+  bw:['5 Min leichtes Cardio','10x Pike Push-up','Nacken dehnen 30 Sek je Seite','Handgelenk-Mobility'],
+ },
+ sections:{
+  gym:[
+   {label:'Schultern',exercises:[
+     {name:'Arnold Press KH',alt:'Rotation während Press · alle Deltoid-Köpfe',sets:3,reps:'10–12',kg:16,home:false},
+     {name:'Cable Lateral Raise Dropset',alt:'3 Gewichtsstufen ohne Pause',sets:3,reps:'Dropset',kg:8,home:false},
+     {name:'Reverse Pec Deck',alt:'Hinterer Deltoid · langsam',sets:3,reps:'15',kg:20,home:false},
+   ]},
+   {label:'Arme Burnout',exercises:[
+     {name:'Preacher Curl Maschine',alt:'Oberarm fixiert · volle Streckung',sets:3,reps:'12',kg:25,home:false},
+     {name:'Trizeps Dips Bank',alt:'Hände auf Bank · Beine gestreckt',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'Curl + Pushdown Superset',alt:'Ohne Pause wechseln · 10–12 je Übung',sets:3,reps:'10–12',kg:20,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Schultern',exercises:[
+     {name:'Arnold Press sitzend',alt:'Rotation während Press · alle Deltoid-Köpfe',sets:3,reps:'10–12',kg:14,home:false},
+     {name:'Seitheben Dropset',alt:'3 Gewichtsstufen ohne Pause',sets:3,reps:'Dropset',kg:10,home:false},
+     {name:'Rear Delt Fly (Kabel-Ersatz)',alt:'Mit KH vorgebeugt · langsam',sets:3,reps:'15',kg:8,home:false},
+   ]},
+   {label:'Arme Burnout',exercises:[
+     {name:'Preacher Curl (Stuhl)',alt:'Oberarm auf Stuhllehne abgestützt',sets:3,reps:'12',kg:12,home:true},
+     {name:'Trizeps Dips (Stuhl)',alt:'Hände auf Stuhl · Beine gestreckt',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'Curl + Overhead Ext. Superset',alt:'Ohne Pause wechseln · 10–12 je Übung',sets:3,reps:'10–12',kg:12,home:false},
+   ]},
+  ],
+  bw:[
+   {label:'Schultern',exercises:[
+     {name:'Pike Push-up',alt:'Hüfte hoch · Schulterfokus',sets:4,reps:'10–15',kg:0,home:true},
+     {name:'Wall Handstand Hold',alt:'Füße an Wand · so lange wie möglich halten',sets:3,reps:'20–40 Sek',kg:0,home:true},
+     {name:'Archer Push-up',alt:'Ein Arm gestreckt seitlich',sets:3,reps:'8/Seite',kg:0,home:true},
+   ]},
+   {label:'Arme Burnout',exercises:[
+     {name:'Chin-ups eng (Bizeps)',alt:'Untergriff eng · langsam negativ',sets:3,reps:'max',kg:0,home:true},
+     {name:'Dips zwischen Stühlen',alt:'Tief dehnen · kontrolliert',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'Diamond Push-up Pulse',alt:'Kleine Pulse unten · Burnout',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'sat',name:'Samstag',short:'SA',focus:'Beine + Conditioning',sub:'High Reps & Endurance',
+ warmup:{
+  gym:['5 Min Cardio leicht','10x Bodyweight Squat','Hüft-Mobility 1 Min je Seite','Bein-Dehnung 30 Sek je Bein'],
+  home:['5 Min lockeres Gehen','10x Bodyweight Squat','10x Hüftschwingen je Seite','Bein-Dehnung 30 Sek je Bein'],
+  bw:['5 Min lockeres Gehen/Springen','10x Bodyweight Squat','Hüft-Mobility 1 Min je Seite','Bein-Dehnung 30 Sek je Bein'],
+ },
+ sections:{
+  gym:[
+   {label:'Beine',exercises:[
+     {name:'Ausfallschritte Langhantel',alt:'Lange Schritte · kontrolliert',sets:3,reps:'12/Bein',kg:30,home:false},
+     {name:'Beinpresse eng/Sumo',alt:'Breite Fußstellung · Innenseite Bein',sets:3,reps:'15–20',kg:100,home:false},
+     {name:'Liegender Beinbeuger',alt:'Volle Kontraktion · langsam negativ',sets:3,reps:'15',kg:30,home:false},
+     {name:'Wadenheben Maschine',alt:'Volle Range · 1 Sek halten',sets:4,reps:'20',kg:50,home:false},
+   ]},
+   {label:'Conditioning (eine wählen)',exercises:[
+     {name:'Assault Bike / Rudergerät',alt:'10 Runden · 30 Sek hart / 30 Sek locker',sets:10,reps:'30 Sek',kg:0,home:true},
+   ]},
+  ],
+  home:[
+   {label:'Beine',exercises:[
+     {name:'Walking Lunges',alt:'Mit KH · langer Schritt',sets:3,reps:'12/Bein',kg:12,home:true},
+     {name:'Sumo Squat',alt:'Breite Stellung · eine KH hängt runter',sets:3,reps:'15–20',kg:20,home:true},
+     {name:'Leg Curl (KH zwischen Füßen)',alt:'Bauch auf Boden · KH einklemmen',sets:3,reps:'15',kg:10,home:true},
+     {name:'Calf Raises einbeinig',alt:'Treppenstufe · KH in einer Hand',sets:4,reps:'20',kg:14,home:true},
+   ]},
+   {label:'Conditioning (eine wählen)',exercises:[
+     {name:'Burpees',alt:'10 Runden · 10 Reps · 30 Sek Pause',sets:10,reps:'10',kg:0,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Beine',exercises:[
+     {name:'Walking Lunges',alt:'Lange Schritte · kontrolliert',sets:3,reps:'15/Bein',kg:0,home:true},
+     {name:'Jump Squats',alt:'Explosiv · weich landen',sets:3,reps:'15–20',kg:0,home:true},
+     {name:'Nordic Curl (assistiert)',alt:'Hände abstützen zur Kontrolle',sets:3,reps:'6–8',kg:0,home:true},
+     {name:'Step-ups (Stuhl/Bank)',alt:'Hohes Tempo · kontrolliert',sets:3,reps:'15/Bein',kg:0,home:true},
+   ]},
+   {label:'Conditioning (eine wählen)',exercises:[
+     {name:'Burpees',alt:'10 Runden · 10 Reps · 30 Sek Pause',sets:10,reps:'10',kg:0,home:true},
+     {name:'Mountain Climbers',alt:'10 Runden · 30 Sek · 20 Sek Pause',sets:10,reps:'30 Sek',kg:0,home:true},
+   ]},
+  ],
+ }},
+];
+
+// ────────────────────────────────────────────────────────────────────────
+// PPL x2 — Push / Pull / Legs / Push / Pull / Legs
+// ────────────────────────────────────────────────────────────────────────
+const PPL_DAYS = [
+{key:'mon',name:'Montag',short:'MO',focus:'Push',sub:'Brust · Schulter · Trizeps (Heavy)',
+ warmup:{
+  gym:['5 Min Cardio','Schulter-Rotationen mit Band','2 Aufwärmsätze Bankdrücken leicht','10x Band Pull-Aparts'],
+  home:['5 Min Armkreisen','10x Liegestütz mit Pause oben','Schulter-Mobility 1 Min','10x leichtes Schulterpress'],
+  bw:['5 Min Seilspringen','10x Liegestütz langsam','Schulter-Mobility 1 Min','10x Pike Push-up'],
+ },
+ sections:{
+  gym:[
+   {label:'Brust',exercises:[
+     {name:'Langhantel Bankdrücken',alt:'Griff schulterbreit+ · schwer',sets:4,reps:'5–7',kg:65,home:false},
+     {name:'Schrägbankdrücken KH',alt:'30° Neigung · obere Brust',sets:3,reps:'8–10',kg:24,home:false},
+     {name:'Kabelzug Fly (hoch)',alt:'Stretch unten · Kontraktion oben',sets:3,reps:'12–15',kg:15,home:false},
+   ]},
+   {label:'Schultern',exercises:[
+     {name:'Langhantel Schulterdrücken',alt:'Kern fest · schwer',sets:4,reps:'6–8',kg:35,home:false},
+     {name:'Seitheben Kabel',alt:'Konstante Spannung',sets:3,reps:'12–15',kg:8,home:false},
+   ]},
+   {label:'Trizeps',exercises:[
+     {name:'Trizeps Pushdown',alt:'Volle Extension',sets:3,reps:'10–12',kg:25,home:false},
+     {name:'French Press',alt:'SZ-Stange · Ellbogen stabil',sets:3,reps:'10–12',kg:20,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Brust',exercises:[
+     {name:'KH Flachbank-Press',alt:'Boden als Bank · schwer',sets:4,reps:'6–8',kg:22,home:false},
+     {name:'KH Schrägbank Press',alt:'Füße auf Stuhl · obere Brust',sets:3,reps:'8–10',kg:18,home:false},
+     {name:'KH Fly liegend',alt:'Voller Stretch',sets:3,reps:'12–15',kg:12,home:false},
+   ]},
+   {label:'Schultern',exercises:[
+     {name:'KH Schulterpress stehend',alt:'Kern anspannen',sets:4,reps:'8–10',kg:16,home:false},
+     {name:'Seitheben',alt:'Kontrolliert',sets:3,reps:'12–15',kg:10,home:false},
+   ]},
+   {label:'Trizeps',exercises:[
+     {name:'Overhead Trizeps Extension',alt:'Eine KH beidhändig',sets:3,reps:'10–12',kg:14,home:false},
+     {name:'Trizeps Kickback einarmig',alt:'Ellbogen fixiert',sets:3,reps:'10–12',kg:10,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Brust',exercises:[
+     {name:'Pseudo Planche Liegestütz',alt:'Hände weit unten · vorgebeugt',sets:4,reps:'8–12',kg:0,home:true},
+     {name:'Diamond Liegestütz',alt:'Eng · Brust+Trizeps',sets:3,reps:'10–15',kg:0,home:true},
+     {name:'Archer Push-up',alt:'Einseitige Last',sets:3,reps:'8/Seite',kg:0,home:true},
+   ]},
+   {label:'Schultern',exercises:[
+     {name:'Pike Push-up',alt:'Hüfte hoch · Schulterfokus',sets:4,reps:'8–12',kg:0,home:true},
+     {name:'Wall Handstand Hold',alt:'So lange wie möglich',sets:3,reps:'20–40 Sek',kg:0,home:true},
+   ]},
+   {label:'Trizeps',exercises:[
+     {name:'Dips zwischen Stühlen',alt:'Tief dehnen',sets:3,reps:'10–15',kg:0,home:true},
+     {name:'Diamond Push-up Pulse',alt:'Burnout',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'tue',name:'Dienstag',short:'DI',focus:'Pull',sub:'Rücken · Bizeps (Heavy)',
+ warmup:{
+  gym:['5 Min Cardio','Lat-Aktivierung 10x Pulldown leicht','Band-Außenrotation 15x je Seite','Handgelenk-Mobility'],
+  home:['5 Min Armkreisen','10x Bodyweight Rudern (Tischkante)','Band Pull-Aparts 15x','10x Bizeps-Curl leicht'],
+  bw:['5 Min Seilspringen','10x Scapula Pull-ups','Schulter-Mobility 1 Min','Handgelenk-Mobility'],
+ },
+ sections:{
+  gym:[
+   {label:'Rücken',exercises:[
+     {name:'Latzug breit',alt:'Brust raus · zu oberer Brust ziehen',sets:4,reps:'6–8',kg:58,home:false},
+     {name:'Rudern Kabel sitzend',alt:'Rücken gerade · Ellbogen am Körper',sets:4,reps:'8–10',kg:52,home:false},
+     {name:'T-Bar Rudern',alt:'Brust auf Pad · volle Kontraktion',sets:3,reps:'10–12',kg:42,home:false},
+     {name:'Face Pulls',alt:'Ellbogen hoch · hinterer Deltoid',sets:3,reps:'15',kg:15,home:false},
+   ]},
+   {label:'Bizeps',exercises:[
+     {name:'Bizeps Curl Kabel',alt:'Konstante Spannung',sets:4,reps:'8–10',kg:22,home:false},
+     {name:'Hammer Curl KH',alt:'Neutral-Griff · Brachialis',sets:3,reps:'10–12',kg:14,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge',alt:'Breiter Griff',sets:4,reps:'max',kg:0,home:true},
+     {name:'KH Rudern einarmig',alt:'Flacher Rücken',sets:4,reps:'8–10',kg:24,home:false},
+     {name:'KH Rudern beidhändig',alt:'Rumpf parallel zum Boden',sets:3,reps:'10–12',kg:20,home:false},
+     {name:'KH Pullover',alt:'Tiefer Stretch',sets:3,reps:'12',kg:16,home:false},
+   ]},
+   {label:'Bizeps',exercises:[
+     {name:'KH Curl wechselseitig',alt:'Volle Streckung unten',sets:4,reps:'8–10',kg:16,home:false},
+     {name:'Hammer Curl',alt:'Neutral-Griff',sets:3,reps:'10–12',kg:14,home:false},
+   ]},
+  ],
+  bw:[
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge breit (BW)',alt:'Volle Streckung unten',sets:4,reps:'max',kg:0,home:true},
+     {name:'Australian Rows (Stange tief)',alt:'Körper unter Stange',sets:4,reps:'12–15',kg:0,home:true},
+     {name:'Negative Pull-ups',alt:'Langsam 4–5 Sek runter',sets:3,reps:'5–6',kg:0,home:true},
+     {name:'Superman Hold',alt:'2 Sek halten oben',sets:3,reps:'15',kg:0,home:true},
+   ]},
+   {label:'Bizeps',exercises:[
+     {name:'Chin-ups eng (Bizeps)',alt:'Untergriff eng',sets:4,reps:'max',kg:0,home:true},
+     {name:'Isometric Chin Hold',alt:'Untergriff · Kinn über Stange halten so lang wie möglich',sets:3,reps:'max Sek',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'wed',name:'Mittwoch',short:'MI',focus:'Legs',sub:'Schwere Compounds',
+ warmup:{
+  gym:['5 Min Rad/Stepper','10x Bodyweight Squat tief','Hüft-Mobility 1 Min je Seite','2 Aufwärmsätze Kniebeuge leer'],
+  home:['5 Min Seilspringen','10x Bodyweight Squat tief','10x Hüftkreisen je Seite','Walking Lunges ohne Gewicht'],
+  bw:['5 Min lockeres Springen','10x Bodyweight Squat','Hüft-Mobility 1 Min je Seite','10x Step-ups langsam'],
+ },
+ sections:{
+  gym:[
+   {label:'Beine',exercises:[
+     {name:'Kniebeuge (Langhantel)',alt:'Hüfte tief · schwer',sets:4,reps:'5–7',kg:85,home:false},
+     {name:'Beinpresse',alt:'Volle Range',sets:4,reps:'10–12',kg:125,home:false},
+     {name:'Rumänisches Kreuzheben',alt:'Hüfte zurück · Hamstrings',sets:4,reps:'8–10',kg:65,home:false},
+     {name:'Beinbeuger Maschine',alt:'Langsam negativ',sets:3,reps:'10–12',kg:35,home:false},
+     {name:'Wadenheben Maschine',alt:'1 Sek Halten oben',sets:4,reps:'15–20',kg:50,home:false},
+   ]},
+   {label:'Abs',exercises:[
+     {name:'Hanging Leg Raises',alt:'An Stange',sets:3,reps:'15',kg:0,home:true},
+     {name:'Cable Crunch',alt:'Kniend am Kabelturm',sets:3,reps:'15',kg:25,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Beine',exercises:[
+     {name:'Goblet Squat',alt:'Eine KH vor Brust',sets:4,reps:'10–12',kg:26,home:true},
+     {name:'Rumänisches Kreuzheben',alt:'Hüfte zurück',sets:4,reps:'8–10',kg:24,home:false},
+     {name:'Bulgarian Split Squat',alt:'Hinterer Fuß auf Stuhl',sets:3,reps:'10/Bein',kg:14,home:true},
+     {name:'Walking Lunges',alt:'KH in Händen',sets:3,reps:'12/Bein',kg:12,home:true},
+     {name:'Calf Raises einbeinig',alt:'Treppenstufe',sets:4,reps:'20',kg:16,home:true},
+   ]},
+   {label:'Abs',exercises:[
+     {name:'Hanging Leg Raises',alt:'Türstange',sets:3,reps:'15',kg:0,home:true},
+     {name:'Crunch mit KH',alt:'Langsam kontrolliert',sets:3,reps:'15',kg:8,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Beine',exercises:[
+     {name:'Pistol Squat (assistiert)',alt:'Türrahmen/Stuhl zur Balance',sets:4,reps:'6–8/Bein',kg:0,home:true},
+     {name:'Shrimp Squat',alt:'Sehr tief',sets:3,reps:'6–8/Bein',kg:0,home:true},
+     {name:'Single-Leg RDL (Bodyweight)',alt:'Hüfte scharnieren',sets:3,reps:'10–12/Bein',kg:0,home:true},
+     {name:'Nordic Curl (assistiert)',alt:'Hände abstützen',sets:3,reps:'6–8',kg:0,home:true},
+     {name:'Step-ups (Stuhl/Bank)',alt:'Explosiv hoch',sets:3,reps:'12/Bein',kg:0,home:true},
+   ]},
+   {label:'Abs',exercises:[
+     {name:'L-Sit Hold (an Stange)',alt:'Bauchspannung',sets:3,reps:'15–20 Sek',kg:0,home:true},
+     {name:'Plank to Push-up',alt:'Langsame Kontrolle',sets:3,reps:'12',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'thu',name:'Donnerstag',short:'DO',focus:'Push',sub:'Brust · Schulter · Trizeps (Volume)',
+ warmup:{
+  gym:['5 Min Cardio','Brustöffnung mit Band','2 Aufwärmsätze leicht','10x Band Pull-Aparts'],
+  home:['5 Min Armkreisen','10x weite Liegestütz langsam','Doorway Chest Stretch 30 Sek','10x Wrist Circles'],
+  bw:['5 Min Seilspringen','10x weite Liegestütz langsam','Doorway Chest Stretch 30 Sek','10x Pike Push-up'],
+ },
+ sections:{
+  gym:[
+   {label:'Brust',exercises:[
+     {name:'Incline Bankdrücken Maschine',alt:'Obere Brust · kontrolliert',sets:4,reps:'10–12',kg:40,home:false},
+     {name:'Dips (Maschine/Assist)',alt:'Leicht vorgebeugt · untere Brust',sets:3,reps:'10–12',kg:20,home:false},
+     {name:'Pec Deck',alt:'Volle Kontraktion',sets:3,reps:'12–15',kg:35,home:false},
+   ]},
+   {label:'Schultern',exercises:[
+     {name:'Arnold Press KH',alt:'Alle Deltoid-Köpfe',sets:3,reps:'10–12',kg:16,home:false},
+     {name:'Cable Lateral Raise Dropset',alt:'3 Gewichtsstufen',sets:3,reps:'Dropset',kg:8,home:false},
+   ]},
+   {label:'Trizeps',exercises:[
+     {name:'Curl + Pushdown Superset',alt:'Trizeps-Fokus im Superset',sets:3,reps:'10–12',kg:20,home:false},
+     {name:'Trizeps Dips Bank',alt:'Beine gestreckt',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+  ],
+  home:[
+   {label:'Brust',exercises:[
+     {name:'Liegestütz (Füße erhöht)',alt:'Obere Brust',sets:4,reps:'10–15',kg:0,home:true},
+     {name:'Enger Liegestütz',alt:'Trizeps + innere Brust',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'KH Fly langsam',alt:'Voller Stretch',sets:3,reps:'15',kg:10,home:false},
+   ]},
+   {label:'Schultern',exercises:[
+     {name:'Arnold Press sitzend',alt:'Alle Deltoid-Köpfe',sets:3,reps:'10–12',kg:14,home:false},
+     {name:'Seitheben Dropset',alt:'3 Gewichtsstufen',sets:3,reps:'Dropset',kg:10,home:false},
+   ]},
+   {label:'Trizeps',exercises:[
+     {name:'Curl + Overhead Ext. Superset',alt:'Ohne Pause wechseln',sets:3,reps:'10–12',kg:12,home:false},
+     {name:'Trizeps Dips (Stuhl)',alt:'Beine gestreckt',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Brust',exercises:[
+     {name:'Liegestütz (Füße erhöht)',alt:'Obere Brust',sets:4,reps:'12–15',kg:0,home:true},
+     {name:'Plank to Push-up',alt:'Brust-Stabilität',sets:3,reps:'12',kg:0,home:true},
+     {name:'Diamond Liegestütz',alt:'Eng · Brust+Trizeps',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+   {label:'Schultern',exercises:[
+     {name:'Pike Push-up',alt:'Schulterfokus',sets:4,reps:'10–15',kg:0,home:true},
+     {name:'Archer Push-up',alt:'Einseitige Last',sets:3,reps:'8/Seite',kg:0,home:true},
+   ]},
+   {label:'Trizeps',exercises:[
+     {name:'Dips zwischen Stühlen',alt:'Tief dehnen',sets:3,reps:'12–15',kg:0,home:true},
+     {name:'Diamond Push-up Pulse',alt:'Burnout',sets:3,reps:'12–15',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'fri',name:'Freitag',short:'FR',focus:'Pull',sub:'Rücken · Bizeps (Volume)',
+ warmup:{
+  gym:['5 Min Cardio','Lat-Aktivierung leicht','Band-Außenrotation 15x je Seite','Handgelenk-Mobility'],
+  home:['5 Min Armkreisen','10x Bodyweight Rudern','Band Pull-Aparts 15x','10x Bizeps-Curl leicht'],
+  bw:['5 Min Seilspringen','10x Scapula Pull-ups','Schulter-Mobility 1 Min','Handgelenk-Mobility'],
+ },
+ sections:{
+  gym:[
+   {label:'Rücken',exercises:[
+     {name:'Klimmzüge breit',alt:'Zur Brust ziehen',sets:4,reps:'8–10',kg:0,home:true},
+     {name:'Rudern Maschine',alt:'Brust am Pad',sets:4,reps:'10–12',kg:45,home:false},
+     {name:'Reverse Pec Deck',alt:'Hinterer Deltoid + oberer Rücken',sets:3,reps:'12–15',kg:25,home:false},
+   ]},
+   {label:'Bizeps',exercises:[
+     {name:'Preacher Curl Maschine',alt:'Volle Streckung',sets:3,reps:'10–12',kg:25,home:false},
+     {name:'Hammer Curl KH',alt:'Brachialis',sets:3,reps:'10–12',kg:14,home:false},
+   ]},
+  ],
+  home:[
+   {label:'Rücken',exercises:[
+     {name:'Chin-ups (Untergriff)',alt:'Mehr Bizeps + unterer Lat',sets:4,reps:'max',kg:0,home:true},
+     {name:'KH Rudern beidhändig',alt:'Rumpf parallel zum Boden',sets:4,reps:'10–12',kg:20,home:false},
+     {name:'Superman Hold',alt:'2 Sek halten oben',sets:3,reps:'15',kg:0,home:true},
+   ]},
+   {label:'Bizeps',exercises:[
+     {name:'Preacher Curl (Stuhl)',alt:'Oberarm auf Stuhllehne',sets:3,reps:'10–12',kg:12,home:true},
+     {name:'Hammer Curl',alt:'Brachialis',sets:3,reps:'10–12',kg:14,home:false},
+   ]},
+  ],
+  bw:[
+   {label:'Rücken',exercises:[
+     {name:'Negative Pull-ups',alt:'Langsam 4–5 Sek runter',sets:4,reps:'5–6',kg:0,home:true},
+     {name:'Australian Rows (Stange tief)',alt:'Körper unter Stange',sets:4,reps:'12–15',kg:0,home:true},
+     {name:'Superman Hold',alt:'2 Sek halten oben',sets:3,reps:'15',kg:0,home:true},
+   ]},
+   {label:'Bizeps',exercises:[
+     {name:'Chin-ups eng (Bizeps)',alt:'Untergriff eng',sets:4,reps:'max',kg:0,home:true},
+     {name:'Commando Pull-up',alt:'Neutrale Griffweite · abwechselnd links/rechts oben',sets:3,reps:'6–8',kg:0,home:true},
+   ]},
+  ],
+ }},
+{key:'sat',name:'Samstag',short:'SA',focus:'Legs',sub:'High Reps & Conditioning',
+ warmup:{
+  gym:['5 Min Cardio leicht','10x Bodyweight Squat','Hüft-Mobility 1 Min je Seite','Bein-Dehnung 30 Sek je Bein'],
+  home:['5 Min lockeres Gehen','10x Bodyweight Squat','10x Hüftschwingen je Seite','Bein-Dehnung 30 Sek je Bein'],
+  bw:['5 Min lockeres Gehen/Springen','10x Bodyweight Squat','Hüft-Mobility 1 Min je Seite','Bein-Dehnung 30 Sek je Bein'],
+ },
+ sections:{
+  gym:[
+   {label:'Beine',exercises:[
+     {name:'Ausfallschritte Langhantel',alt:'Lange Schritte',sets:3,reps:'12/Bein',kg:30,home:false},
+     {name:'Beinpresse eng/Sumo',alt:'Innenseite Bein',sets:3,reps:'15–20',kg:100,home:false},
+     {name:'Liegender Beinbeuger',alt:'Langsam negativ',sets:3,reps:'15',kg:30,home:false},
+     {name:'Wadenheben Maschine',alt:'1 Sek halten',sets:4,reps:'20',kg:50,home:false},
+   ]},
+   {label:'Conditioning (eine wählen)',exercises:[
+     {name:'Assault Bike / Rudergerät',alt:'10 Runden · 30 Sek hart/locker',sets:10,reps:'30 Sek',kg:0,home:true},
+   ]},
+  ],
+  home:[
+   {label:'Beine',exercises:[
+     {name:'Walking Lunges',alt:'Mit KH',sets:3,reps:'12/Bein',kg:12,home:true},
+     {name:'Sumo Squat',alt:'Breite Stellung',sets:3,reps:'15–20',kg:20,home:true},
+     {name:'Leg Curl (KH zwischen Füßen)',alt:'Bauch auf Boden',sets:3,reps:'15',kg:10,home:true},
+     {name:'Calf Raises einbeinig',alt:'Treppenstufe',sets:4,reps:'20',kg:14,home:true},
+   ]},
+   {label:'Conditioning (eine wählen)',exercises:[
+     {name:'Burpees',alt:'10 Runden · 10 Reps',sets:10,reps:'10',kg:0,home:true},
+   ]},
+  ],
+  bw:[
+   {label:'Beine',exercises:[
+     {name:'Walking Lunges',alt:'Lange Schritte',sets:3,reps:'15/Bein',kg:0,home:true},
+     {name:'Jump Squats',alt:'Explosiv',sets:3,reps:'15–20',kg:0,home:true},
+     {name:'Step-ups (Stuhl/Bank)',alt:'Hohes Tempo',sets:3,reps:'15/Bein',kg:0,home:true},
+   ]},
+   {label:'Conditioning (eine wählen)',exercises:[
+     {name:'Burpees',alt:'10 Runden · 10 Reps',sets:10,reps:'10',kg:0,home:true},
+     {name:'Mountain Climbers',alt:'10 Runden · 30 Sek',sets:10,reps:'30 Sek',kg:0,home:true},
+   ]},
+  ],
+ }},
+];
+
+const PLANS=[
+  {key:'arnold',label:'Arnold',sub:'Oberkörper 2x · Beine 1x/Woche',data:ARNOLD_DAYS},
+  {key:'ppl',label:'PPL x2',sub:'Push/Pull/Legs · 2x/Woche',data:PPL_DAYS},
+];
+function getDays(){ return PLANS.find(p=>p.key===state.plan).data; }
+
+const MODES=[
+  {key:'gym',label:'Gym',sub:'Maschinen/Kabel/Langhantel'},
+  {key:'home',label:'Home',sub:'Kurzhantel-Setup'},
+  {key:'bw',label:'Bodyweight',sub:'Klimmzugstange'},
+];
+
+const RPE_TEXT={
+  1:'Sehr leicht → +4kg', 2:'Leicht → +2–4kg', 3:'Moderat → +2kg',
+  4:'Etwas anstrengend → +2kg', 5:'Anstrengend → +2kg', 6:'Schwer → prüfen',
+  7:'Sehr schwer → gleich bleiben', 8:'Fast max → gleich bleiben',
+  9:'Fast alles → Technik checken', 10:'Maximum → Gewicht runter'
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let state = JSON.parse(localStorage.getItem('arnold_pro_v3')||'null') || {
+  startDate:Date.now(), completedDays:{}, workoutLogs:{},
+  weights:{}, streak:0, lastCompleted:null, weekNum:1, totalSets:0, prs:{}, mode:'gym', plan:'arnold'
+};
+if(!state.mode) state.mode='gym';
+if(!state.plan) state.plan='arnold';
+function save(){localStorage.setItem('arnold_pro_v3',JSON.stringify(state));}
+function today(){return new Date().toISOString().slice(0,10);}
+function todayDayIndex(){return(new Date().getDay()+6)%7;}
+function isDeload(){return state.weekNum>0 && state.weekNum%5===0;}
+function deloadFactor(){return isDeload()?0.6:1;}
+function getWeight(dk,exName,def){return state.weights[state.plan+'_'+state.mode+'_'+dk+'_'+exName]||def;}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+let currentPage='dash';
+function goPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const bb=document.getElementById('bnav-'+p); if(bb) bb.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    if(t.getAttribute('onclick')===`goPage('${p}')`) t.classList.add('active');
+  });
+  currentPage=p;
+  if(p==='dash') renderDash();
+  if(p==='workout') renderWorkout();
+  if(p==='progress') renderProgress();
+}
+
+// ── PLAN SWITCH ───────────────────────────────────────────────────────────
+function renderPlanSwitch(){
+  const ps=document.getElementById('plan-switch'); ps.innerHTML='';
+  PLANS.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='mode-btn'+(state.plan===p.key?' active':'');
+    b.innerHTML=`${p.label}<span class="sub">${p.sub}</span>`;
+    b.onclick=()=>setPlan(p.key);
+    ps.appendChild(b);
+  });
+}
+function setPlan(planKey){
+  if(state.plan===planKey) return;
+  state.plan=planKey;
+  save();
+  renderPlanSwitch();
+  renderDash();
+  currentDayIdx=Math.min(todayDayIndex(),5);
+  if(currentPage==='workout') renderWorkout();
+  const p=PLANS.find(x=>x.key===planKey);
+  showToast('Plan: '+p.label);
+}
+
+// ── MODE SWITCH ───────────────────────────────────────────────────────────
+function renderModeSwitch(){
+  const ms=document.getElementById('mode-switch'); ms.innerHTML='';
+  MODES.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='mode-btn'+(state.mode===m.key?' active':'');
+    b.innerHTML=`${m.label}<span class="sub">${m.sub}</span>`;
+    b.onclick=()=>setMode(m.key);
+    ms.appendChild(b);
+  });
+}
+function setMode(modeKey){
+  if(state.mode===modeKey) return;
+  state.mode=modeKey;
+  save();
+  renderModeSwitch();
+  renderDash();
+  if(currentPage==='workout') renderWorkout();
+  const m=MODES.find(x=>x.key===modeKey);
+  showToast('Modus: '+m.label);
+}
+
+// ── DASH ──────────────────────────────────────────────────────────────────
+function getWeekDateKey(i){
+  const n=new Date(), cur=(n.getDay()+6)%7, d=new Date(n);
+  d.setDate(d.getDate()+(i-cur));
+  return d.toISOString().slice(0,10);
+}
+function getNextDayIdx(){
+  const di=todayDayIndex();
+  if(di<6 && !state.completedDays[getWeekDateKey(di)]) return di;
+  for(let i=0;i<6;i++){const idx=(di+i)%6; if(!state.completedDays[getWeekDateKey(idx)]) return idx;}
+  return Math.min(di,5);
+}
+function renderDash(){
+  renderPlanSwitch();
+  renderModeSwitch();
+  const h=new Date().getHours();
+  document.getElementById('dash-greeting').textContent=h<12?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
+  document.getElementById('dash-date').textContent=
+    new Date().toLocaleDateString('de-AT',{weekday:'long',day:'numeric',month:'long'})+' · Woche '+state.weekNum;
+  document.getElementById('dash-streak').textContent=state.streak;
+  document.getElementById('dash-week-num').textContent=state.weekNum;
+  const dots=document.getElementById('week-dots'); dots.innerHTML='';
+  const di=todayDayIndex();
+  for(let i=0;i<6;i++){
+    const d=document.createElement('div');
+    d.className='week-dot'+(state.completedDays[getWeekDateKey(i)]?' done':i===di?' today':'');
+    dots.appendChild(d);
+  }
+  const done=[0,1,2,3,4,5].filter(i=>state.completedDays[getWeekDateKey(i)]).length;
+  document.getElementById('dash-week-done').textContent=done+'/6';
+  document.getElementById('dash-total-vol').textContent=state.totalSets;
+  const ni=getNextDayIdx();
+  if(ni!==null){
+    const d=getDays()[ni];
+    document.getElementById('next-day-name').textContent=d.name+(ni===di?' (Heute)':'');
+    document.getElementById('next-day-focus').textContent=d.focus+' · '+d.sub;
+  }
+  document.getElementById('deload-banner-dash').style.display=isDeload()?'block':'none';
+  const isTrain=(ni===di);
+  document.getElementById('dash-kcal').textContent=isTrain?'2900':'2400';
+  document.getElementById('dash-kcal-note').textContent=isTrain?'Trainingstag':'Ruhetag';
+  document.getElementById('dash-carbs').textContent=isTrain?'340':'240';
+  document.getElementById('dash-carbs-note').textContent=isTrain?'Energie für Training':'Moderate Carbs';
+  document.getElementById('dash-fat').textContent=isTrain?'75':'90';
+}
+function startToday(){
+  goPage('workout');
+  const di=Math.min(todayDayIndex(),5);
+  setTimeout(()=>selectDay(di),80);
+}
+
+// ── WORKOUT ───────────────────────────────────────────────────────────────
+let currentDayIdx=0;
+function renderWorkout(){
+  const sel=document.getElementById('day-selector'); sel.innerHTML='';
+  getDays().forEach((d,i)=>{
+    const b=document.createElement('button');
+    b.className='day-btn'+(i===currentDayIdx?' active':'')+(state.completedDays[getWeekDateKey(i)]?' completed':'');
+    b.innerHTML=`<div class="dname">${d.short}</div><div class="dfocus">${d.focus.split('+')[0].trim()}</div>`;
+    b.onclick=()=>selectDay(i);
+    sel.appendChild(b);
+  });
+  const mb=document.getElementById('mode-banner');
+  const m=MODES.find(x=>x.key===state.mode);
+  mb.innerHTML=`<div>Aktueller Modus</div><strong>${m.label} · ${m.sub}</strong>`;
+  renderDay(currentDayIdx);
+}
+function selectDay(i){currentDayIdx=i; renderWorkout();}
+
+function openVideo(exerciseName){
+  const query=encodeURIComponent(exerciseName+' Übung Tutorial');
+  window.open('https://www.youtube.com/results?search_query='+query, '_blank');
+}
+
+function renderDay(idx){
+  const day=getDays()[idx];
+  const area=document.getElementById('workout-area');
+  const deload=isDeload();
+  const modeKey=state.mode;
+  let html='';
+  let globalExIdx=0;
+
+  if(deload) html+=`<div style="text-align:center;padding:8px 0 2px;"><span class="deload-badge">Deload Woche — 60% Gewicht (Bodyweight: -1 Satz / leichtere Variante)</span></div>`;
+
+  // Warmup
+  html+=`<div class="warmup-block"><div class="warmup-title">🔥 Warm-up (5 Min)</div>`;
+  (day.warmup[modeKey]||day.warmup.gym).forEach(w=>html+=`<div class="warmup-item">${w}</div>`);
+  html+=`</div>`;
+
+  const sections=day.sections[modeKey]||day.sections.gym;
+
+  sections.forEach(sec=>{
+    html+=`<div class="ex-section">${sec.label}</div>`;
+    sec.exercises.forEach(ex=>{
+      const exKey=`d${idx}_${modeKey}_e${globalExIdx}`;
+      globalExIdx++;
+      const baseKg=getWeight(day.key, ex.name, ex.kg);
+      let setsCount=ex.sets;
+      if(deload && ex.kg===0 && setsCount>1) setsCount=setsCount-1; // BW deload: -1 Satz
+      const dKg=ex.kg===0?'BW':Math.round(baseKg*deloadFactor())+'kg';
+      const repsPlaceholder=ex.reps;
+      const badgeClass=modeKey==='gym'?'gym':modeKey==='bw'?'bw':'';
+      const badgeText=modeKey==='gym'?'Gym':modeKey==='bw'?'BW':'Home';
+
+      html+=`<div class="ex-card">
+        <div class="ex-header">
+          <div>
+            <div class="ex-name">${ex.name}<span class="ex-badge ${badgeClass}">${badgeText}</span></div>
+            <div class="ex-alt">${ex.alt}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--gold);">${dKg}</div>
+            <div style="font-size:0.62rem;color:var(--muted);">${ex.reps} Wdh</div>
+          </div>
+        </div>`;
+
+      html+=`<button class="video-btn" onclick="openVideo('${ex.name.replace(/'/g,"\\'")}')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+        <div class="video-btn-label">
+          <strong>${ex.name}</strong>
+          <span>▶ YouTube Suche öffnen</span>
+        </div>
+      </button>`;
+
+      html+=`<div class="sets-area">
+        <div class="sets-header"><div>Set</div><div>KG</div><div>Wdh</div><div>Fertig?</div></div>`;
+      for(let s=0;s<setsCount;s++){
+        const sk=`${exKey}_s${s}`;
+        html+=`<div class="set-row">
+          <div class="set-num">${s+1}</div>
+          <input class="set-input" type="number" min="0" step="0.5" placeholder="${ex.kg===0?'BW':Math.round(baseKg*deloadFactor())}" id="kg_${sk}">
+          <input class="set-input" type="number" min="0" placeholder="${repsPlaceholder}" id="reps_${sk}">
+          <button class="set-done-btn" id="done_${sk}" onclick="toggleSetDone('${sk}','${day.key}','${ex.name}',${baseKg})">✓ Done</button>
+        </div>`;
+      }
+
+      html+=`<div class="rpe-row"><div class="rpe-label">RPE</div><div class="rpe-dots">`;
+      for(let r=1;r<=10;r++){
+        html+=`<div class="rpe-dot" data-rpe="${r}" id="rpe_${exKey}_${r}" onclick="setRPE('${exKey}',${r})">${r}</div>`;
+      }
+      html+=`</div><div class="rpe-feedback" id="rpe_fb_${exKey}"></div></div>`;
+
+      if(ex.kg>0){
+        html+=`<div class="prog-hint"><strong>Nächste Woche:</strong> Alle Sätze sauber → <strong>+2kg (${Math.round(baseKg*deloadFactor())+2}kg)</strong></div>`;
+      } else {
+        html+=`<div class="prog-hint"><strong>Progression:</strong> Alle Sätze am Limit → mehr Wdh, Tempo verlangsamen oder erschwerte Variante wählen.</div>`;
+      }
+      html+=`</div></div>`;
+    });
+  });
+
+  const alreadyDone=state.completedDays[getWeekDateKey(idx)];
+  html+=`<button class="complete-day-btn" onclick="completeDay(${idx})" ${alreadyDone?'disabled':''}>
+    ${alreadyDone?'✓ Training abgeschlossen':'Training abschließen →'}
+  </button>`;
+  area.innerHTML=html;
+}
+
+function toggleSetDone(sk,dk,exName,baseKg){
+  const btn=document.getElementById('done_'+sk);
+  const nowDone=btn.classList.toggle('done');
+  if(nowDone){
+    const kg=parseFloat(document.getElementById('kg_'+sk).value)||baseKg;
+    const reps=parseInt(document.getElementById('reps_'+sk).value)||0;
+    if(!state.workoutLogs[today()]) state.workoutLogs[today()]={};
+    const lk=state.mode+'_'+dk+'_'+exName;
+    if(!state.workoutLogs[today()][lk]) state.workoutLogs[today()][lk]=[];
+    state.workoutLogs[today()][lk].push({kg,reps,id:sk,exName});
+    if(kg>0 && (!state.prs[exName]||kg>state.prs[exName])){
+      state.prs[exName]=kg;
+      showToast('🏆 PR: '+exName+' '+kg+'kg!');
+    }
+    state.totalSets++;
+  } else {
+    const lk=state.mode+'_'+dk+'_'+exName;
+    if(state.workoutLogs[today()] && state.workoutLogs[today()][lk]){
+      state.workoutLogs[today()][lk]=state.workoutLogs[today()][lk].filter(e=>e.id!==sk);
+    }
+    if(state.totalSets>0) state.totalSets--;
+  }
+  save();
+}
+
+function setRPE(exKey,val){
+  for(let r=1;r<=10;r++){
+    const el=document.getElementById(`rpe_${exKey}_${r}`);
+    if(el) el.classList.toggle('active',r===val);
+  }
+  const fb=document.getElementById('rpe_fb_'+exKey);
+  if(fb) fb.textContent=RPE_TEXT[val]||'';
+}
+
+function completeDay(idx){
+  const dk=getWeekDateKey(idx);
+  state.completedDays[dk]=true;
+  const yesterday=new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yk=yesterday.toISOString().slice(0,10);
+  state.streak=(state.lastCompleted===yk||state.lastCompleted===today())?state.streak+1:1;
+  state.lastCompleted=today();
+  const done=[0,1,2,3,4,5].filter(i=>state.completedDays[getWeekDateKey(i)]).length;
+  if(done>=6) state.weekNum++;
+  save();
+  showToast('✓ Gespeichert! Streak: '+state.streak);
+  renderWorkout();
+}
+
+// ── NUTRITION ─────────────────────────────────────────────────────────────
+const MEALS={
+  training:[
+    {time:'7:00 – Frühstück',name:'Haferflocken + Eier',macros:'~650 kcal · 40g P · 80g C · 15g F',detail:'100g Haferflocken, 3 Eier, Banane, Walnüsse'},
+    {time:'10:00 – Snack',name:'Griechischer Joghurt + Beeren',macros:'~300 kcal · 25g P · 30g C · 8g F',detail:'200g Joghurt (10%), Blaubeeren, Honig'},
+    {time:'12:30 – Mittagessen',name:'Reis + Hühnerbrust + Gemüse',macros:'~750 kcal · 55g P · 90g C · 12g F',detail:'200g Hühnerbrust, 150g Reis (gegart), Brokkoli, Olivenöl'},
+    {time:'15:30 – Pre-Workout',name:'Banane + Proteinshake',macros:'~400 kcal · 30g P · 55g C · 5g F',detail:'30–40 Min vor Training · Kreatin 5g dazu'},
+    {time:'18:30 – Post-Workout',name:'Proteinshake + Weißbrot',macros:'~450 kcal · 35g P · 55g C · 8g F',detail:'Direkt nach Training'},
+    {time:'20:00 – Abendessen',name:'Lachs + Süßkartoffel + Salat',macros:'~700 kcal · 45g P · 60g C · 20g F',detail:'200g Lachs, 200g Süßkartoffel, Spinat, Avocado'},
+  ],
+  rest:[
+    {time:'8:00 – Frühstück',name:'Eier + Vollkornbrot',macros:'~500 kcal · 35g P · 40g C · 18g F',detail:'4 Eier, 2 Scheiben Vollkornbrot, Avocado'},
+    {time:'11:00 – Snack',name:'Hüttenkäse + Nüsse',macros:'~300 kcal · 30g P · 10g C · 16g F',detail:'200g Hüttenkäse, 30g Mandeln'},
+    {time:'13:30 – Mittagessen',name:'Quinoa + Hühnerbrust',macros:'~650 kcal · 50g P · 60g C · 14g F',detail:'200g Hühnerbrust, 120g Quinoa, viel Gemüse'},
+    {time:'16:00 – Snack',name:'Joghurt + Protein',macros:'~300 kcal · 30g P · 20g C · 8g F',detail:'Griechischer Joghurt, optional Shake'},
+    {time:'19:30 – Abendessen',name:'Rindfleisch + Gemüse (Low Carb)',macros:'~650 kcal · 45g P · 25g C · 35g F',detail:'200g Rindfleisch, Brokkoli, Paprika, Olivenöl'},
+  ]
+};
+function setNutDay(type,btn){
+  document.querySelectorAll('.nut-toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const tr=type==='training';
+  document.getElementById('ring-kcal').textContent=tr?'2900':'2400';
+  document.getElementById('n-protein').textContent='170g';
+  document.getElementById('n-carbs').textContent=tr?'340g':'240g';
+  document.getElementById('n-fat').textContent=tr?'75g':'90g';
+  renderMeals(type);
+}
+function renderMeals(type){
+  const mp=document.getElementById('meal-plan');
+  mp.innerHTML='<div class="section-title" style="padding-left:0;margin-bottom:10px;">Mahlzeitenplan</div>';
+  MEALS[type].forEach(m=>{
+    mp.innerHTML+=`<div class="meal-item">
+      <div class="meal-time">${m.time}</div>
+      <div class="meal-name">${m.name}</div>
+      <div class="meal-macros">${m.macros}</div>
+      <div class="meal-macros" style="margin-top:2px;font-style:italic;">${m.detail}</div>
+    </div>`;
+  });
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────
+function renderProgress(){
+  const cal=document.getElementById('prog-calendar'); cal.innerHTML='';
+  ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d=>{
+    const h=document.createElement('div');
+    h.style.cssText='font-size:0.58rem;color:var(--muted);text-align:center;padding:2px 0;';
+    h.textContent=d; cal.appendChild(h);
+  });
+  for(let i=27;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    const cell=document.createElement('div');
+    cell.className='prog-week-cell'+(state.completedDays[key]?' done':'')+(key===today()?' today':'');
+    cal.appendChild(cell);
+  }
+  const groups=['Brust','Rücken','Schultern','Arme','Beine','Abs'];
+  const vols={Brust:0,Rücken:0,Schultern:0,Arme:0,Beine:0,Abs:0};
+  const MUSCLE_MAP={
+    'Langhantel Bankdrücken':'Brust','Schrägbankdrücken KH':'Brust','Kabelzug Fly (hoch)':'Brust',
+    'KH Flachbank-Press':'Brust','Liegestütz (Füße erhöht)':'Brust','KH Fly liegend':'Brust',
+    'KH Schrägbank Press':'Brust','Enger Liegestütz':'Brust','KH Fly langsam':'Brust',
+    'Incline Bankdrücken Maschine':'Brust','Dips (Maschine/Assist)':'Brust','Pec Deck':'Brust',
+    'Pseudo Planche Liegestütz':'Brust','Diamond Liegestütz':'Brust','Archer Push-up':'Brust',
+    'Diamond Push-up Pulse':'Brust','Plank to Push-up':'Brust',
+    'Latzug breit':'Rücken','Rudern Kabel sitzend':'Rücken','T-Bar Rudern':'Rücken',
+    'Klimmzüge':'Rücken','KH Rudern einarmig':'Rücken','KH Pullover':'Rücken',
+    'KH Rudern beidhändig':'Rücken','Chin-ups (Untergriff)':'Rücken','Superman Hold':'Rücken',
+    'Klimmzüge breit':'Rücken','Rudern Maschine':'Rücken','Reverse Pec Deck':'Rücken',
+    'Klimmzüge breit (BW)':'Rücken','Australian Rows (Stange tief)':'Rücken','Negative Pull-ups':'Rücken',
+    'Chin-ups eng (Bizeps)':'Rücken','Isometric Chin Hold':'Arme','Commando Pull-up':'Rücken',
+    'Langhantel Schulterdrücken':'Schultern','Seitheben Kabel':'Schultern','Face Pulls':'Schultern',
+    'KH Schulterpress stehend':'Schultern','Seitheben':'Schultern','Bent-over Rear Delt Fly':'Schultern',
+    'Arnold Press sitzend':'Schultern','Seitheben Dropset':'Schultern','Rear Delt Fly (Kabel-Ersatz)':'Schultern',
+    'Arnold Press KH':'Schultern','Cable Lateral Raise Dropset':'Schultern',
+    'Pike Push-up':'Schultern','Wall Handstand Hold':'Schultern','Decline Pike Push-up':'Schultern',
+    'Bizeps Curl Kabel':'Arme','Trizeps Pushdown':'Arme','Hammer Curl KH':'Arme','French Press':'Arme',
+    'KH Curl wechselseitig':'Arme','Trizeps Kickback einarmig':'Arme','Hammer Curl':'Arme','Overhead Trizeps Extension':'Arme',
+    'Preacher Curl Maschine':'Arme','Trizeps Dips Bank':'Arme','Curl + Pushdown Superset':'Arme',
+    'Preacher Curl (Stuhl)':'Arme','Trizeps Dips (Stuhl)':'Arme','Curl + Overhead Ext. Superset':'Arme',
+    'Dips zwischen Stühlen':'Arme',
+    'Kniebeuge (Langhantel)':'Beine','Beinpresse':'Beine','Rumänisches Kreuzheben':'Beine',
+    'Beinbeuger Maschine':'Beine','Wadenheben Maschine':'Beine','Goblet Squat':'Beine',
+    'Bulgarian Split Squat':'Beine','Walking Lunges':'Beine','Calf Raises einbeinig':'Beine',
+    'Sumo Squat':'Beine','Leg Curl (KH zwischen Füßen)':'Beine','Ausfallschritte Langhantel':'Beine',
+    'Beinpresse eng/Sumo':'Beine','Liegender Beinbeuger':'Beine',
+    'Pistol Squat (assistiert)':'Beine','Shrimp Squat':'Beine','Single-Leg RDL (Bodyweight)':'Beine',
+    'Step-ups (Stuhl/Bank)':'Beine','Nordic Curl (assistiert)':'Beine','Jump Squats':'Beine',
+    'Hanging Leg Raises':'Abs','Crunch mit KH':'Abs','Cable Crunch':'Abs',
+    'L-Sit Hold (an Stange)':'Abs',
+    'Assault Bike / Rudergerät':'Abs','Burpees':'Abs','Mountain Climbers':'Abs',
+  };
+  Object.values(state.workoutLogs).forEach(dl=>Object.values(dl).forEach(entries=>{
+    entries.forEach(entry=>{
+      const exName=entry.exName;
+      const group=MUSCLE_MAP[exName]||'Abs';
+      vols[group]+=1;
+    });
+  }));
+  const maxV=Math.max(...Object.values(vols),1);
+  const vb=document.getElementById('vol-bars'); vb.innerHTML='';
+  groups.forEach(g=>{
+    const pct=Math.round((vols[g]/maxV)*100);
+    vb.innerHTML+=`<div class="vol-bar-row">
+      <div style="color:var(--muted);">${g}</div>
+      <div class="vol-bar-track"><div class="vol-bar-fill" style="width:${pct}%"></div></div>
+      <div class="vol-num">${vols[g]} Sets</div>
+    </div>`;
+  });
+  const prl=document.getElementById('pr-list');
+  const prEntries=Object.entries(state.prs||{}).filter(([,v])=>v>0);
+  if(prEntries.length>0){
+    prl.innerHTML='';
+    prEntries.forEach(([ex,kg])=>{
+      prl.innerHTML+=`<div class="pr-item"><div class="pr-ex">${ex}</div><div class="pr-val">${kg} kg</div></div>`;
+    });
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderMeals('training');
+renderDash();
+currentDayIdx=Math.min(todayDayIndex(),5);
+renderWorkout();
+</script>
+</body>
+</html>
