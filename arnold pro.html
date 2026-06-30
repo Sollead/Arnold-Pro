@@ -2660,20 +2660,38 @@ function scrollToTop(){
   document.documentElement.scrollTop=0;
 }
 
-function handleScrollTopButton(){
-  const btn=document.getElementById('scroll-top-btn');
+// Unsichtbares Sentinel-Element ganz oben — wenn es aus dem Sichtbereich scrollt, zeige Button
+function initScrollTopButton(){
+  // Sentinel oben auf der Seite
+  const sentinel = document.createElement('div');
+  sentinel.id = 'scroll-sentinel';
+  sentinel.style.cssText = 'position:absolute;top:60px;left:0;width:1px;height:1px;pointer-events:none;';
+  document.body.insertBefore(sentinel, document.body.firstChild);
+
+  const btn = document.getElementById('scroll-top-btn');
   if(!btn) return;
-  const scrollY=window.pageYOffset||window.scrollY||document.body.scrollTop||document.documentElement.scrollTop||0;
-  if(scrollY>300) btn.classList.add('show');
-  else btn.classList.remove('show');
+
+  // IntersectionObserver: wenn Sentinel nicht sichtbar → Button zeigen
+  const observer = new IntersectionObserver(entries=>{
+    if(!entries[0].isIntersecting) btn.classList.add('show');
+    else btn.classList.remove('show');
+  }, {threshold:0});
+  observer.observe(sentinel);
+
+  // Zusätzlich direkter Check per Interval als Fallback
+  setInterval(()=>{
+    const y=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
+    if(y>150) btn.classList.add('show');
+    else btn.classList.remove('show');
+  }, 250);
 }
 
-// Mehrere Strategien gleichzeitig für maximale iOS Kompatibilität
-['scroll','touchmove','touchend'].forEach(evt=>{
-  window.addEventListener(evt,handleScrollTopButton,{passive:true});
-  document.addEventListener(evt,handleScrollTopButton,{passive:true});
-});
-setInterval(handleScrollTopButton,500);
+// Nach DOM-Ready initialisieren
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initScrollTopButton);
+} else {
+  initScrollTopButton();
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 // PWA: Service Worker nicht kompatibel mit GitHub Pages
