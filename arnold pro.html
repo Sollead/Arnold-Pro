@@ -195,6 +195,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .timing-row:last-child{border:none;}
 .timing-when{color:var(--muted);}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,8,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;z-index:100;}
+.scroll-top-btn{position:fixed;bottom:78px;right:14px;width:42px;height:42px;border-radius:50%;background:var(--gold);color:#000;border:none;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 2px 10px rgba(0,0,0,0.4);z-index:99;opacity:0;pointer-events:none;transition:opacity 0.25s;cursor:pointer;}
+.scroll-top-btn.show{opacity:1;pointer-events:auto;}
 .bnav-btn{flex:1;background:none;border:none;color:var(--muted);padding:9px 4px 13px;cursor:pointer;transition:color 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .bnav-btn.active{color:var(--gold);}
 .bnav-btn svg{width:19px;height:19px;}
@@ -390,6 +392,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
   <button class="bnav-btn" onclick="goPage('nutrition')" id="bnav-nutrition"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Nutrition</span></button>
   <button class="bnav-btn" onclick="goPage('progress')" id="bnav-progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Verlauf</span></button>
 </nav>
+<button class="scroll-top-btn" id="scroll-top-btn" onclick="scrollToTop()">↑</button>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1311,6 +1314,7 @@ function goPage(p){
     if(t.getAttribute('onclick')===`goPage('${p}')`) t.classList.add('active');
   });
   currentPage=p;
+  window.scrollTo(0,0);
   if(p==='dash') renderDash();
   if(p==='workout') renderWorkout();
   if(p==='progress') renderProgress();
@@ -2648,6 +2652,28 @@ function renderPeriodization(){
     <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${phase.desc}</div>
     <div style="font-size:0.68rem;color:${phase.color};margin-top:3px;">Ziel-Wiederholungen diese Woche: <strong>${phase.rep}</strong></div>`;
 }
+
+// ── SCROLL TO TOP ─────────────────────────────────────────────────────────
+function scrollToTop(){
+  document.documentElement.scrollTo({top:0,behavior:'smooth'});
+  document.body.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function handleScrollTopButton(){
+  const btn=document.getElementById('scroll-top-btn');
+  if(!btn) return;
+  const scrollY=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
+  if(scrollY>300) btn.classList.add('show');
+  else btn.classList.remove('show');
+}
+
+// iOS Safari braucht passive listener auf document
+window.addEventListener('scroll',handleScrollTopButton,{passive:true});
+document.addEventListener('scroll',handleScrollTopButton,{passive:true});
+document.documentElement.addEventListener('scroll',handleScrollTopButton,{passive:true});
+// Fallback: regelmäßig prüfen (iOS Safari manchmal zuverlässiger so)
+setInterval(handleScrollTopButton, 300);
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 // PWA: Service Worker nicht kompatibel mit GitHub Pages
